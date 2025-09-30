@@ -1,29 +1,70 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+
+import Swal from 'sweetalert2';
 
 function App() {
   const [file, setFile] = useState<File | null>(null);
   const [isInverted, setIsInverted] = useState(false);
 
-  function handleSubmit(e: any) {
+  async function handleSubmit(e: any) {
     // Prevent the browser from reloading the page
     e.preventDefault();
 
+    if (!file) 
+    {
+      Swal.fire({
+        icon: "info",
+        title: "Sin imagen",
+        text: "Debe subir una imagen para usar la IA",
+        confirmButtonText: "Entendido",
+      });
+
+      console.error("No se selecciono ningún archivo");
+
+      return;
+    }
+
     // Read the form data
-    const form = e.target;
-    const formData = new FormData(form);
+    const formData = new FormData();
 
-    console.log(isInverted);
-    console.log(file);
+    formData.append("image", file);
+    formData.append("invert", isInverted ? "true" : "false");
 
-    // You can pass formData as a fetch body directly:
-    // fetch('/some-api', { method: form.method, body: formData });
+    try 
+    {
+      const response = await fetch("api/predict", {
+        method: "POST",
+        body: formData,
+      });
 
-    // Or you can work with it as a plain object:
-    const formJson = Object.fromEntries(formData.entries());
-    console.log(formJson);
+      console.log(response)
+
+      if (!response.ok) 
+      {
+        Swal.fire({
+          icon: "error",
+          title: "Hubo un problema",
+          text: "No fue posible realizar la petición a la IA",
+        });
+
+        throw new Error("Request failed: " + response.statusText);
+      }
+
+      const data = await response.json();
+      console.log("Upload success:", data);
+    } 
+    catch (error) 
+    {
+      Swal.fire({
+          icon: "error",
+          title: "Ocurrio un error durante la petición",
+          text: `${error}`,
+        });
+
+      console.error("Upload error:", error);
+    }
+
   } 
   return (
     <>
