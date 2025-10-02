@@ -9,12 +9,12 @@ export default defineConfig({
     react()
   ],
   server: {
-    proxy: {
-      "/api": {
-        target: "http://ec2-54-81-142-28.compute-1.amazonaws.com:8080",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
-      },
-    },
+    // proxy: {
+    //   "/api": {
+    //     target: "http://ec2-54-81-142-28.compute-1.amazonaws.com:8080",
+    //     changeOrigin: true,
+    //     rewrite: (path) => path.replace(/^\/api/, ""),
+    //   },
+    // },
   },
 })
