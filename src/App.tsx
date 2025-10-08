@@ -1,8 +1,7 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'; 
 import './App.css'
-
 import Swal from 'sweetalert2';
-
 
 function App() {
   const [file, setFile] = useState<File | null>(null);
@@ -41,12 +40,13 @@ function Item(response: ResponseData | null) {
   async function handleSubmit(e: any) {
     // Prevent the browser from reloading the page
     e.preventDefault();
+    
 
     if (!file) {
       Swal.fire({
         icon: "info",
         title: "Sin imagen",
-        text: "Debe subir una imagen para usar la IA",
+        text: "Debe subir una imagen para usarla",
         confirmButtonText: "Entendido",
       });
 
@@ -85,6 +85,10 @@ function Item(response: ResponseData | null) {
       if (data && data.results) {
         setResultsData(data);
       }
+      // Usando sessionStorage
+const logs: ResponseData[] = JSON.parse(sessionStorage.getItem("requestLogs") || "[]");
+logs.unshift(data); // Para agregar al inicio (último primero)
+sessionStorage.setItem("requestLogs", JSON.stringify(logs));
     }
     catch (error) {
       Swal.fire({
@@ -98,38 +102,73 @@ function Item(response: ResponseData | null) {
 
   }
   return (
-    <>
-      <div className="flex w-full justify-center mt-7">
-        <div className="md:w-1/2 lg:w-1/2">
-          <form className="max-w-sm mx-auto" onSubmit={handleSubmit}>
-            <div className="mb-5">
-              <label htmlFor="file" className="block mb-2 text-sm font-medium text-gray-900 text-left">Subir imagen:</label>
-              <input
-                type="file"
-                id="file"
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
-              />
-            </div>
-            <div className="flex items-start mb-5">
-              <div className="flex items-center h-5">
-                <input
-                  id="isInverted"
-                  type="checkbox"
-                  checked={isInverted}
-                  onChange={e => setIsInverted(e.target.checked)}
-                  className="w-5 h-5 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300" />
-              </div>
-              <label htmlFor="isInverted" className="ms-2 text-base font-medium text-gray-900">Es invertido?</label>
-            </div>
-            <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Subir imagen</button>
-          </form>
+  <>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex flex-col items-center justify-center p-4">
+      <Link 
+        to="/history" 
+        className="text-blue-600 hover:text-blue-800 underline text-sm mb-6 self-end sm:self-center"
+      >
+        Ver historial de peticiones
+      </Link>
 
-          {resultsData && <Item {...resultsData} />}        
-        </div>
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+        <h1 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
+          Cargar imagen para análisis
+        </h1>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label 
+              htmlFor="file" 
+              className="block mb-2 text-sm font-medium text-gray-700 text-left"
+            >
+              Subir imagen:
+            </label>
+            <input
+              type="file"
+              id="file"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+                         focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+              onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+            />
+          </div>
+
+          <div className="flex items-center">
+            <input
+              id="isInverted"
+              type="checkbox"
+              checked={isInverted}
+              onChange={e => setIsInverted(e.target.checked)}
+              className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <label htmlFor="isInverted" className="ml-2 text-sm text-gray-700">
+              ¿Es invertido?
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg 
+                       px-5 py-2.5 focus:outline-none focus:ring-4 focus:ring-blue-300 transition"
+          >
+            Subir imagen
+          </button>
+        </form>
+
+        {resultsData && (
+          <div className="mt-6 bg-gray-50 rounded-lg p-4 border border-gray-200 text-left">
+            <p className="text-sm text-gray-700 mb-1">
+              <strong>Accuracy:</strong> {resultsData.accuracy}
+            </p>
+            <p className="text-sm text-gray-700">
+              <strong>Prediction:</strong> {resultsData.prediction}
+            </p>
+          </div>
+        )}
       </div>
-    </>
-  )
+    </div>
+  </>
+);
 }
 
 export default App
