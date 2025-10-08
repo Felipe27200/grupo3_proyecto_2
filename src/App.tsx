@@ -55,7 +55,7 @@ function Item(response: ResponseData | null) {
       return;
     }
 
-    // Read the form data
+    // Lee los datos del formulario
     const formData = new FormData();
 
     formData.append("image", file);
@@ -73,7 +73,7 @@ function Item(response: ResponseData | null) {
         Swal.fire({
           icon: "error",
           title: "Hubo un problema",
-          text: "No fue posible realizar la petición a la IA",
+          text: "No fue posible realizar la petición",
         });
 
         throw new Error("Request failed: " + response.statusText);

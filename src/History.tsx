@@ -16,7 +16,7 @@ interface ResponseData {
 
 function History() {
   const [logs, setLogs] = useState<ResponseData[]>([]);
-
+  //Carga desde sessionStorage los logs guardados y los asigna al estado logs al iniciar el componente.
   useEffect(() => {
     const storedLogs = JSON.parse(sessionStorage.getItem("requestLogs") || "[]");
     setLogs(storedLogs);
